@@ -1,0 +1,53 @@
+# example of the config file
+
+defaults: # path to default yamls e.g. "optimizing/config/optimizer/adam.yaml"
+  - _self_
+  - optimizing/config/optimizer: adam
+
+paths: # TODO: write path validators
+  data: data
+  data_processed: ${paths.data}/data_processed
+  data_external: ${paths.data}/data_external
+  data_raw: ${paths.data}/data_raw
+  reports: reports
+  reports_quick: reports-quick
+  figures: figures
+  models: models
+
+datamodule:
+  image_size: 224
+  dataset_frac: 1
+  shuffle_before_splitting: false
+  num_workers: 8
+  drop_last: true
+  batch_size: 8
+  dataset_dirs:
+    - ${paths.data_external}
+  use_single_images: true
+  kwargs: ~
+
+trainer:
+  log_every_n: 100
+  max_epochs: 50
+
+model:
+  generator:
+    z_dim: 512
+    w_dim: 512
+  pretrained: true
+
+
+optimizing:
+  config:
+    lr_scheduler: exponential_lr
+    set_grads_none: true
+
+
+datetime_format: "%F-%H:%M:%S"
+
+checkpoint: ~
+log:
+  level: DEBUG
+  name: app
+hydra:
+  output_subdir: null

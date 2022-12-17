@@ -1,0 +1,2 @@
+defaults: # path to default yamls e.g. "optimizing/config/optimizer/adam.yaml"
+  - baseline
