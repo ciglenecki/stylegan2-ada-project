@@ -3,3 +3,5 @@ torchvision
 numpy
 hydra-core
 omegaconf
+face-recognition
+imageio
