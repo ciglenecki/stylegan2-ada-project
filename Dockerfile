@@ -31,6 +31,9 @@ RUN apt-get install -y \
     build-essential \
     cmake
 
+# Dependency on face-alignment
+RUN apt-get install -y ffmpeg libsm6 libxext6
+
 COPY requirements.txt /tmp/requirements.txt
 COPY requirements-dev.txt /tmp/requirements-dev.txt
 
