@@ -6,3 +6,4 @@ omegaconf
 face-recognition
 imageio
 scikit-image
+face_alignment
