@@ -41,7 +41,7 @@ RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-dev.txt
 # Fixes plugin not found stylegan2-ada issue
-RUN apt-get intsall -y ninja-build
+RUN apt-get install -y ninja-build
 
 RUN apt-get install -y sudo
 RUN addgroup --gid $GROUP_ID $GROUP_NAME
