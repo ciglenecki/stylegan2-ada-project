@@ -41,10 +41,11 @@ Alias to get an ID of the current running stylegan2 docker container:
 docker ps -a | grep $(whoami) | grep stylegan
 ```
 
-Build the docker image from a Dockerfile.
+**Build the Docker Image from a Dockerfile**:
 - Build-args are arguments that are passed to the Dockerfile. These arguments are used to create the new user inside the docker container which has the same name and group as YOU (the current user). This is done to avoid permission issues.
 - `-t` is the name of the Docker image which will be created
 
+Fixed permissions version:
 ```
 docker build \
 --build-arg USER_ID=$(id -u) \
@@ -54,41 +55,60 @@ docker build \
 -t mciglenecki/stylegan2-ada .
 ```
 
-If you can't run commands like `id -un` (e.g. you are on Windows), try running `docker build` without --build-args
-
+No permissions version (If you can't run commands like `id -un` (e.g. you are on Windows), try running `docker build` without --build-args) : 
 ```
 docker build -t mciglenecki/stylegan2-ada .
 ```
 
-Build the docker image from a Dockerfile
-```
-docker build \
---build-arg USER_ID=$(id -u) \
---build-arg GROUP_ID=$(id -g) \
---build-arg USER_NAME=$(id -un) \
---build-arg GROUP_NAME=$(id -gn) \
--t mciglenecki/stylegan2-ada .
-```
+**Run the docker container**:
+- `-ti` runs the Docker container in interactive mode (you get access to the shell)
+- `-e` sets the enviroment variables. You should set `TCNN_CUDA_ARCHITECTURES` to the  Compute Capability. List of GPU's and their Compute Capability can be found at https://developer.nvidia.com/cuda-gpus. My GPU's Computer Capability is 6.1 so I set `TCNN_CUDA_ARCHITECTURES` to `61`
+- `--name` is the name of the Docker Container which will be created
+- `-v` stands for volume. Volume is a mapping between your local directory and directory in the Docker Container. Any changes inside of the directory (locally or inside of the Docker) will be reflect at the other directory. **Careful, this includes creating, editing and deleting files.**
+- last argument `mciglenecki/stylegan2-ada` is the name of the Docker Image used for creating the Docker Container.
+- `-v ~/projects/stylegan2-ada:<<DOCKER_DIR_LOCATION>>` where `<<DOCKER_DIR_LOCATION>>` is either:
+  - `/home/$(whoami)/stylegan2-ada`: if you used `--build-arg` during Docker build
+  - `/root/stylegan2-ada`: if you didn't use `--build-arg` during Docker build
 
-Run the docker container
+Fixed permissions version:
 ```
 docker run \
 -ti --gpus device=0 \
--e TCNN_CUDA_ARCHITECTURES=61 \
+-e TCNN_CUDA_ARCHITECTURES=<MY_GPU_COMPUTE_CAPABILITY> \
 --name=$(whoami)-stylegan2-ada \
 -v ~/projects/stylegan2-ada:/home/$(whoami)/stylegan2-ada \
 mciglenecki/stylegan2-ada
 ```
 
-Connect to a running docker container in the previous shell
+No permissions version (difference is only at `-v`): 
+```
+docker run \
+-ti --gpus device=0 \
+-e TCNN_CUDA_ARCHITECTURES=<MY_GPU_COMPUTE_CAPABILITY> \
+--name=$(whoami)-stylegan2-ada \
+-v ~/projects/stylegan2-ada:/root/stylegan2-ada \
+mciglenecki/stylegan2-ada
+```
+
+Exit docker container WITHOUT stopping it: `Ctrl + P, Ctrl + Q`
+
+Exit docker container and stop it: `Ctrl + D`
+
+Start docker container:
+```
+docker start <CONTAINER_ID> 
+```
+
+Connect to a running docker container:
 ```
 docker attach <CONTAINER_ID> 
 ```
 
-Connect to a running docker container in the new shell
+Connect to a running docker container in the new shell/session:
 ```
 docker exec -ti -e COLUMNS="`tput cols`" -e LINES="`tput lines`" <CONTAINER_ID> bash
 ```
+
 
 ## 📝 Notes:
 

@@ -1,3 +1,0 @@
-references/stylegan.pdf
-references/stylegan2-ada.pdf
-references/stylegan2.pdf

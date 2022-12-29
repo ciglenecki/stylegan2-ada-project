@@ -5,13 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Berlin
 ## CUDA architectures, required by tiny-cuda-nn.
 ENV TCNN_CUDA_ARCHITECTURES=61
+
 ## CUDA Home, required to find CUDA in some packages.
 ENV CUDA_HOME="/usr/local/cuda"
-
-ARG USER_NAME
-ARG USER_ID
-ARG GROUP_NAME
-ARG GROUP_ID
 
 # Update and upgrade all packages
 RUN apt update -y
@@ -40,29 +36,28 @@ COPY requirements-dev.txt /tmp/requirements-dev.txt
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-dev.txt
+
 # Fixes plugin not found stylegan2-ada issue
 RUN apt-get install -y ninja-build
-
 RUN apt-get install -y sudo
-RUN addgroup --gid $GROUP_ID $GROUP_NAME
-# Create a new user with name USER_NAME
-RUN adduser --disabled-password --uid $USER_ID --gid $GROUP_ID --shell /bin/bash $USER_NAME
 
-# Set password for a user
-# RUN echo "$USER_NAME:PASSWORD" | chpasswd 
+# Arguments required for setting the permissions
+ARG USER_NAME=root
+ARG USER_ID
+ARG GROUP_NAME
+ARG GROUP_ID
 
-# Add a user as a new sudoer
-RUN adduser $USER_NAME sudo
+# Create account in Docker Container with the same name and group as the current user who is building the Docker image.
+COPY set_perms.sh /tmp/set_perms.sh
+RUN chmod +x /tmp/set_perms.sh && /tmp/set_perms.sh $USER_ID $USER_NAME $GROUP_ID $GROUP_NAME
 
-# Remove password
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER $USER_NAME
 
 # Set the pretty and obvious prompts
 ENV TERM xterm-256color
-RUN echo 'export PS1="\A \[\033[1;36m\]\h\[\033[1;34m\] \w \[\033[0;015m\]\\$ \[$(tput sgr0)\]\[\033[0m\]"' >> "/home/$USER_NAME/.bashrc"
+RUN echo 'export PS1="\A \[\033[1;36m\]\h\[\033[1;34m\] \w \[\033[0;015m\]\\$ \[$(tput sgr0)\]\[\033[0m\]"' >> ~/.bashrc
 
-# Set user
-USER $USER_NAME
-# Set CWDIR
-WORKDIR "/home/$USER_NAME"
+# Set bash entrypoint location to home directory
+# WORKDIR $USER_HOME
+
 CMD ["bash", "-l"]
