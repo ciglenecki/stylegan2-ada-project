@@ -12,7 +12,6 @@
 - [ ] explore latent space in a particular direction, change concrete features (pose, nose...) [link](https://amarsaini.github.io/Epoching-Blog/jupyter/2020/08/10/Latent-Space-Exploration-with-StyleGAN2.html#3.-Interpolation-of-Latent-Codes)
   - [ ] even better: take feature from a person? E.g. simple interpolation between faces A and B is always possible. But how can I add A's hair to B? Find a way to extract latent representation of A's hair and add it to B.
 
-
 ## Notes/findings:
 ### Latent space projection
 Initial projection in latent space gave very bad results <IMAGE_OF_BAD_PROJECTION>. This happened because the preprocessing of the image was not done in the same way as FFHQ's preprocessing (TODO: describe FFHQ's preprocessing technique). Once the FFHQ's preprocessing was applied the lantet projection was better.
@@ -42,8 +41,26 @@ Alias to get an ID of the current running stylegan2 docker container:
 docker ps -a | grep $(whoami) | grep stylegan
 ```
 
-Build the docker image from a Dockerfile
+Build the docker image from a Dockerfile.
+- Build-args are arguments that are passed to the Dockerfile. These arguments are used to create the new user inside the docker container which has the same name and group as YOU (the current user). This is done to avoid permission issues.
+- `-t` is the name of the Docker image which will be created
 
+```
+docker build \
+--build-arg USER_ID=$(id -u) \
+--build-arg GROUP_ID=$(id -g) \
+--build-arg USER_NAME=$(id -un) \
+--build-arg GROUP_NAME=$(id -gn) \
+-t mciglenecki/stylegan2-ada .
+```
+
+If you can't run commands like `id -un` (e.g. you are on Windows), try running `docker build` without --build-args
+
+```
+docker build -t mciglenecki/stylegan2-ada .
+```
+
+Build the docker image from a Dockerfile
 ```
 docker build \
 --build-arg USER_ID=$(id -u) \
@@ -57,6 +74,7 @@ Run the docker container
 ```
 docker run \
 -ti --gpus device=0 \
+-e TCNN_CUDA_ARCHITECTURES=61 \
 --name=$(whoami)-stylegan2-ada \
 -v ~/projects/stylegan2-ada:/home/$(whoami)/stylegan2-ada \
 mciglenecki/stylegan2-ada
