@@ -7,3 +7,4 @@ face-recognition
 imageio
 scikit-image
 face_alignment
+lovely-tensors
