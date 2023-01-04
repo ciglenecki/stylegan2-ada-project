@@ -250,8 +250,8 @@ class CFA(nn.Module):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='A simple script to extract eye and mouth coordinates from a face image.')
-    parser.add_argument('-s', '--src', default='./raw_images', help='directory of raw images')
-    parser.add_argument('-d', '--dst', default='./aligned_images', help='directory of aligned images')
+    parser.add_argument('-s', '--src', default='../data/raw', help='directory of raw images')
+    parser.add_argument('-d', '--dst', default='../data/processed', help='directory of aligned images')
     parser.add_argument('-o', '--output_size', default=256, type=int, help='size of aligned output (default: 256)')
     parser.add_argument('-t', '--transform_size', default=1024, type=int, help='size of aligned transform (default: 256)')
     parser.add_argument('--no_padding', action='store_false', help='no padding')
