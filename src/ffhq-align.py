@@ -358,6 +358,7 @@ class CFA(nn.Module):
         self.load_state_dict(all_weights)
 
 
+<<<<<<< HEAD
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
@@ -380,6 +381,14 @@ if __name__ == "__main__":
         help="size of aligned transform (default: 256)",
     )
     parser.add_argument("--no_padding", action="store_false", help="no padding")
+=======
+    parser = argparse.ArgumentParser(description='A simple script to extract eye and mouth coordinates from a face image.')
+    parser.add_argument('-s', '--src', default='../data/raw', help='directory of raw images')
+    parser.add_argument('-d', '--dst', default='../data/processed', help='directory of aligned images')
+    parser.add_argument('-o', '--output_size', default=256, type=int, help='size of aligned output (default: 256)')
+    parser.add_argument('-t', '--transform_size', default=1024, type=int, help='size of aligned transform (default: 256)')
+    parser.add_argument('--no_padding', action='store_false', help='no padding')
+>>>>>>> ir2718
 
     args = parser.parse_args()
 
