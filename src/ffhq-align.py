@@ -13,6 +13,7 @@ from torch.autograd.grad_mode import enable_grad
 from collections import OrderedDict
 import glob
 from pathlib import Path
+from tqdm import tqdm
 
 
 def image_align_68(
@@ -358,13 +359,34 @@ class CFA(nn.Module):
         self.load_state_dict(all_weights)
 
 
-<<<<<<< HEAD
+def align_image(
+    image_path, dest_dir, landmarks_detector, output_size, transform_size, no_padding
+):
+    img_name_path = Path(image_path)
+
+    for _, face_landmarks in enumerate(
+        landmarks_detector.get_landmarks(str(img_name_path)), start=1
+    ):
+
+        dest_path = str(Path(dest_dir, f"ffhq-{img_name_path.name}"))
+
+        image_align_68(
+            image_path,
+            dest_path,
+            face_landmarks,
+            output_size,
+            transform_size,
+            no_padding,
+        )
+        print("Saved image:", dest_path)
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="A simple script to extract eye and mouth coordinates from a face image."
     )
-    parser.add_argument("-s", "--src", help="directory of raw images")
+    parser.add_argument("-s", "--src", help="directory of raw images", nargs="+")
     parser.add_argument("-d", "--dst", help="directory of aligned images")
     parser.add_argument(
         "-o",
@@ -381,14 +403,6 @@ if __name__ == "__main__":
         help="size of aligned transform (default: 256)",
     )
     parser.add_argument("--no_padding", action="store_false", help="no padding")
-=======
-    parser = argparse.ArgumentParser(description='A simple script to extract eye and mouth coordinates from a face image.')
-    parser.add_argument('-s', '--src', default='../data/raw', help='directory of raw images')
-    parser.add_argument('-d', '--dst', default='../data/processed', help='directory of aligned images')
-    parser.add_argument('-o', '--output_size', default=256, type=int, help='size of aligned output (default: 256)')
-    parser.add_argument('-t', '--transform_size', default=1024, type=int, help='size of aligned transform (default: 256)')
-    parser.add_argument('--no_padding', action='store_false', help='no padding')
->>>>>>> ir2718
 
     args = parser.parse_args()
 
@@ -399,19 +413,23 @@ if __name__ == "__main__":
         face_alignment.LandmarksType._3D, flip_input=False
     )
 
-    for img_name in glob.glob(args.src):
-        img_name_path = Path(img_name)
-
-        for i, face_landmarks in enumerate(
-            landmarks_detector.get_landmarks(img_name), start=1
-        ):
-
-            dest_fact_path = str(Path(args.dst, f"ffhq-{img_name_path.name}"))
-
-            image_align_68(
-                img_name,
-                dest_fact_path,
-                face_landmarks,
+    for path in tqdm(args.src):
+        subpaths = []
+        
+        if os.path.isdir(path):  # path is a directory which contains images
+            for f in os.listdir(path):
+                full_path = os.path.join(path, f)
+                if os.path.isfile(full_path):
+                    subpaths.append(full_path)
+        else:  # path is an image
+            subpaths.append(path)
+            
+        for image_path in tqdm(subpaths):
+            print("Aligning image...", image_path)
+            align_image(
+                image_path,
+                args.dst,
+                landmarks_detector,
                 args.output_size,
                 args.transform_size,
                 args.no_padding,
