@@ -26,6 +26,8 @@ def parse():
     parser.add_argument('--noise_mode', type=str, default='const', help='Noise mode') #'const', 'random', 'none'
     parser.add_argument('--slider_step', type=float, default=0.01, help='Size of the step for the slider')
     parser.add_argument('--network_pkl', type=str, default='https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/ffhq.pkl', help='The URL to the network .pkl file')
+    parser.add_argument('--min_val', type=float, default=0.0)
+    parser.add_argument('--max_val', type=float, default=1.0)
     args = parser.parse_args()
     return args
 
@@ -41,22 +43,24 @@ def main():
         args.slider_step, 
         args.noise_mode, 
         w,
-        args.feature_num, 
+        args.min_val,
+        args.max_val,
+        args.feature_num,
     )
 
     fig, ax = setup_figure()
 
     im = ax.imshow(all_imgs[0])
-    image2_slider = Slider(plt.axes([0.15, 0.05, 0.75, 0.03]), 'w value', 0, 1.0, valinit=0, valstep=args.slider_step)
+    feature_slider = Slider(plt.axes([0.15, 0.05, 0.75, 0.03]), 'w value', args.min_val, args.max_val, valinit=0, valstep=args.slider_step)
 
     def update(val):
-        img2_percentage = image2_slider.val
-        step = int(img2_percentage * int(1 / args.slider_step))
+        feature_value = feature_slider.val
+        step = int((feature_value - args.min_val) / args.slider_step)
         new_img = all_imgs[step]
         im.set_array(new_img)
         fig.canvas.draw_idle()
 
-    image2_slider.on_changed(update)
+    feature_slider.on_changed(update)
     plt.show()
 
 main()

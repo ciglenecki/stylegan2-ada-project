@@ -30,14 +30,16 @@ def calculate_all_images(G, slider_step, noise_mode, w1, w2):
         all_imgs.append(img_i)
     return np.array(all_imgs)
 
-def calculate_all_images2(G, slider_step, noise_mode, w, feature_num=0):
-    w_max, w_min = w.max(), w.min()
-    num_steps = int(1 / slider_step) + 1
+def calculate_all_images2(G, slider_step, noise_mode, w, min_val, max_val, feature_num=0):
+    num_steps = int((max_val - min_val) / slider_step) + 1
     all_imgs = []
+
+    curr_min = min_val
     for i in tqdm(range(num_steps)):
         w_i = w[:, :, :]
-        w_i[0, feature_num] = w_min +  i * (w_max - w_min) * slider_step
+        w_i[0, feature_num] = curr_min
         all_imgs.append(calculate_image(G, w_i, noise_mode))
+        curr_min += slider_step
     return np.array(all_imgs)
 
 def setup_figure():
