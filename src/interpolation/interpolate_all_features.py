@@ -22,7 +22,7 @@ from interpolate_utils import *
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--img_latent', type=str, default='../data/outputs/img1/projected_w_303.npz' , help='The path to the face image')
-    parser.add_argument('--feature_nums', nargs='+', type=int, default=[0, 7])
+    parser.add_argument('--feature_nums', nargs='+', type=int, default=[0, 7, 5])
     parser.add_argument('--noise_mode', type=str, default='const', help='Noise mode') #'const', 'random', 'none'
     parser.add_argument('--slider_step', type=float, default=0.25, help='Size of the step for the slider')
     parser.add_argument('--network_pkl', type=str, default='https://nvlabs-fi-cdn.nvidia.com/stylegan2-ada-pytorch/pretrained/ffhq.pkl', help='The URL to the network .pkl file')
