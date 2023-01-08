@@ -1,3 +1,9 @@
 [submodule "nvidia-stylegan2-ada"]
 	path = nvidia-stylegan2-ada
 	url = https://github.com/ciglenecki/stylegan2-ada-pytorch.git
+[submodule "stylegan2"]
+	path = stylegan2
+	url = https://github.com/ciglenecki/stylegan2.git
+[submodule "mini-stylegan"]
+	path = mini-stylegan
+	url = https://github.com/mirxonius/miniStyle.git
