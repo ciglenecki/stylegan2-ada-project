@@ -8,3 +8,4 @@ imageio
 scikit-image
 face_alignment
 lovely-tensors
+psutil

@@ -3,20 +3,32 @@
 ## 📋 Todo:
 - [x] write introduction to the problem
 - [x] create a minimal working example pytorch script of torch loading, file loading and file writing
-- [x] add a preprocessing script which does the same preprocessing as FFHQ's method# StyleGAN2-ADA project
+- [x] add a preprocessing script which does the same preprocessing as FFHQ's method
+- [x] implement custom DCGAN
+  - [x] train on FFHQ dataset
+  - [x] train on Celeba dataset
+  - [x] trian on MetFaces dataset
+- [x] implement custom StyleGAN
+  - [x] train on FFHQ dataset
+  - [x] train on Celeba dataset
+  - [x] trian on MetFaces dataset
 - [x] get minimal working example of projecting the image into latent space (latent space, final image, video of the interpolation between the initial and final image)
-- [ ] Better interpolation results:
-  - [ ] create 10 different images and interpolate their latent vectors to get the best results
-  - [ ] add noise to latent vector at every level of projection to include randomness
-  - [ ] use W(1,18) instead of W(1) when projecting [link](https://colab.research.google.com/github/woctezuma/stylegan2-projecting-images/blob/master/stylegan2_projecting_images_with_my_fork.ipynb#scrollTo=beAa5YPrdqgs&uniqifier=2)
-- [ ] explore latent space in a particular direction, change concrete features (pose, nose...) [link](https://amarsaini.github.io/Epoching-Blog/jupyter/2020/08/10/Latent-Space-Exploration-with-StyleGAN2.html#3.-Interpolation-of-Latent-Codes)
-  - [ ] even better: take feature from a person? E.g. simple interpolation between faces A and B is always possible. But how can I add A's hair to B? Find a way to extract latent representation of A's hair and add it to B.
+- [x] create script for linear interpolation of two images
+  - [x] add gui slider
+  - [x] add precompute/cache
+- [x] explore latent space in a particular direction, change concrete features (pose, nose...) [link](https://amarsaini.github.io/Epoching-Blog/jupyter/2020/08/10/Latent-Space-Exploration-with-StyleGAN2.html#3.-Interpolation-of-Latent-Codes)
+  - [x] change a particual dimension of W in hope of chaning a specific facial feature (works!)
+  - [x] use trained latent directions (open_mouth, open_eyes...) and generate images new images
+- [x] compare StyleGAN2 and StyleGAN2-ADA
+  - [x] finetune both models on MetFaces (n = 1400)
+  - [x] finetune both models on MetFaces (n = 100)
+  - [x] compare images and FID metric for different kimg step
+- [x] write a full PDF report
+- [x] create a presentation
+- [ ] add noise to latent vector at every level of projection to include randomness
+- [ ] use W(1,18) instead of W(1) when projecting [link](https://colab.research.google.com/github/woctezuma/stylegan2-projecting-images/blob/master/stylegan2_projecting_images_with_my_fork.ipynb#scrollTo=beAa5YPrdqgs&uniqifier=2)
+- [ ] take feature from a person? E.g. simple interpolation between faces A and B is always possible. But how can I add A's hair to B? Find a way to extract latent representation of A's hair and add it to B.
 
-## Notes/findings:
-### Latent space projection
-Initial projection in latent space gave very bad results <IMAGE_OF_BAD_PROJECTION>. This happened because the preprocessing of the image was not done in the same way as FFHQ's preprocessing (TODO: describe FFHQ's preprocessing technique). Once the FFHQ's preprocessing was applied the lantet projection was better.
-
-Projection to latent representation takes ~2 minutes (TODO: can we improve this?)
 
 ## 📁 Directory structure
 
@@ -26,6 +38,7 @@ Projection to latent representation takes ~2 minutes (TODO: can we improve this?
 | [data](data/)                                 | datasets                                          |
 | [models](models/)                             | model checkpoints, model metadata                 |
 | [nvidia-stylegan2-ada](nvidia-stylegan2-ada/) | fork of the original stylegan2-ada implementation |
+| [mini-stylegan](mini-stylegan)                | our own from scratch GAN implementation           |
 | [figures](figures/)                           | figures                                           |
 | [references](references/)                     | research papers                                   |
 | [reports](reports/)                           | model checkpoints and model metadata              |
@@ -109,8 +122,41 @@ Connect to a running docker container in the new shell/session:
 docker exec -ti -e COLUMNS="`tput cols`" -e LINES="`tput lines`" <CONTAINER_ID> bash
 ```
 
-
 ## 📝 Notes:
+
+### Commands log
+
+```bash
+python nvidia-stylegan2-ada/train.py --resume ffhq256 --outdir outputs/metfaces-256 --data data/metfaces-aligned/images-256-tfrecords/ --cfg paper256 --batch 8 --aug noaug --gpus=1 --metrics none --kimg 40 --snap 1
+```
+
+```bash
+python nvidia-stylegan2-ada/train.py --resume ffhq256 --outdir outputs/metfaces-256 --data data/metfaces-aligned/images-256-tfrecords/ --cfg paper256 --batch 8 --aug ada --gpus=1 --metrics none --kimg 40 --snap 1
+```
+
+```bash
+python nvidia-stylegan2-ada/train.py --resume ffhq256 --outdir outputs/metfaces-256 --data data/metfaces-aligned/images-256-tfrecords/ --cfg paper256 --batch 8 --aug noaug --gpus=1  --kimg 100 --snap 1 --subset 100;
+```
+
+
+### Specs
+
+GPU: Titan XP
+
+### Latent space projection
+
+Initial projection in latent space gave very bad results <IMAGE_OF_BAD_PROJECTION>. This happened because the preprocessing of the image was not done in the same way as FFHQ's preprocessing (TODO: describe FFHQ's preprocessing technique). Once the FFHQ's preprocessing was applied the lantet projection was better.
+
+Projection to latent representation takes ~2 minutes (TODO: can we improve this?)
+
+### StyleGAN2 vs StyleGAN2-ADA
+
+- pretrained fhqq-256 StyleGAN2 finetuned to MetFaces (2h 5min = 125min)
+- pretrained fhqq-256 StyleGAN2-ADA finetuned to MetFaces (2h 10min = 130min)
+
+Exponential Moving Average (EMA)
+
+Gs - Gan Slimming
 
 ### Reducing complexity of the generator ($g$) while trying to perserve the output quality
 
@@ -138,27 +184,6 @@ Goal: instead of one style vector, try to decompose it to $\mathbf{w_1}$ and $\m
 ### Mini StyleGAN
 Goal: reimplement StyleGAN arhitecture which generates small images
 - quite hard and time consuming, probably out of the scope of this project
-
-### Cilj StyleGAN projekta: 
-1. odabaremo pretrenirani StyleGAN model (smanjujemo vrijeme treniranja, broj potrebnih podataka, osiguravamo stabilne rezultate već u startu)
-2. nađemo dataset koji odgovara pretreniranom modelu ovdje https://github.com/justinpinkney/awesome-pretrained-stylegan2
-	1. recimo da je StyleGAN pretreniran na slikama lica. Umjesto dataseta kojeg su oni koristili, mi možemo pronaći neki drugi sličan dataset. Također možemo i napuniti dataset sa svojim selfijima i raditi styling interpolaciju između više nas, ovo bi bilo urnebesno.
-	2. StyleGAN generalan i sve što napravimo možemo primjeniti na drugi finetuneani model/dataset (životinje, auti, art, itd.)
-3. dotreniramo model s novim slikama i sagledamo nove rezultate. Ovo je bitno da dobijemo osjećaj koliko traje jedan ciklus treniranja.
-4. pokušamo trenirati od početka na nekom postojećem datasetu (ovo će trajati sigurno par dana).
-5. kad uspijemo napraviti korak 4 možemo krenuti mijenjati arhitekturu mreže i isprobavati raditi nove različite stvari. Tu će nam puno stvari pasti na pamet jednom kad pročitamo paper i krenemo raditi. Stvari koje mi sad padaju na pamet:
-	3. kako smanjiti složenost modela a da performanse ostaju slične
-	4. možemo li koristiti latentne reprezentacije slika kao ulaz umjesto samih slika
-	5. možemo li obogatitit neki dio arhitekture
-	6. note: Arhitekturu ne možemo mijenjati ako koristimo pretrenirani model. Tehnički bi i mogli, na način da kopiramo weightove pretreniranog modela na mjestima gdje je arhitektura ostala ista - ovdje je mozda moguce nadodati na kraj modela nesto extra ako zelis pojacat arhitekturu pa onda kao koristis izlaz baznog modela ko neki feature extractor (kinda)
-6. cijelo vrijeme iteriramo i bilježimo rezultate
-
-Najbolji kandidat model za projekt: StyleGAN2-ada
-
-Podrška: StyleGAN ima odličnu podršku u smislu količine informacija modelia, datasetova, open codea, direktne PyTorch implementacije, puno videa na temu, prepoznatljivost, itd.
-
-Međusobna kompatibilnost: sva 3 StyleGAN-a su kompatibilne unazad (ali StyleGAN3 se svejedno mora dotrenirati !)
-
 
 ## StyleGAN
 - youtube video: https://youtu.be/kSLJriaOumA
