@@ -1,5 +1,9 @@
 # StyleGAN2-ADA project
 
+Results of the StyleGAN2-ADA finetuned on images of art (MetFaces dataset)
+
+![](report/2023-01-28-00-27.jpg)
+
 ## 📋 Todo:
 - [x] write introduction to the problem
 - [x] create a minimal working example pytorch script of torch loading, file loading and file writing
